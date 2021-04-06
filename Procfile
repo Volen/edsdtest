@@ -1,1 +1,1 @@
-web: gunicorn psychics.wsgi
+web: gunicorn edsdtest.wsgi.application
