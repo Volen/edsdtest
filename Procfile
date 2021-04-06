@@ -1,1 +1,1 @@
-web: gunicorn edsdtest.wsgi.application
+web: gunicorn edsdtest.wsgi
