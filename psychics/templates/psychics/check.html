@@ -9,6 +9,7 @@
     <body>
         <h1>Резульаты</h1>
         <p>Гурджиев - {{ request.session.Гурджиев }}</p>
-        <p>Угадайкин - {{ request.session.Угадайкин }}</p>        
+        <p>Угадайкин - {{ request.session.Угадайкин }}</p>  
+        <a href="{% url 'index' %}">Начать заново</a>
     </body>
 </html>
