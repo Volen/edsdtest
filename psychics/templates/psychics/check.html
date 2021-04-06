@@ -1,6 +1,6 @@
 {% extends "layout/base.html" %}
 {% block content %}
-    <h1>Резульаты:</h1>
+    <h1>Резульаты (правильный ответ - {{ correct_answer }}):</h1>
     {% if not check_performed %}
         {% for name, data in result.items %}
             <p>Экстарсенс: {{ name }} - Предположил: {{ data.1}} - {% if data.0 %}"Угадал"{% else %}"Не угадал"{% endif %}. Новая достоверность: {{ data.2 }}</p>

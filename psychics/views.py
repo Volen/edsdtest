@@ -11,7 +11,18 @@ def index(request):
         user_history = request.session['user_history'].split(',')
     else:    
         user_history = []
-    return render(request, 'psychics/index.html', {'user_history': user_history})
+
+    psychics_history = {}
+
+    for name in PSYCHICS_NAMES:
+        name_history = name + "_history"
+        if name_history in request.session:
+            psychics_history[name] = request.session[name_history]
+        else:
+            psychics_history[name] = []
+
+    return render(request, 'psychics/index.html', {'user_history': user_history, 'psychics_history': psychics_history})
+
 
 def get_guess(request): 
     if request.method == 'POST':
@@ -25,7 +36,6 @@ def get_guess(request):
             request.session['check_performed'] = False               
             return HttpResponseRedirect(reverse('check', args=[correct_answer]))
     else:
-        print(PSYCHICS_NAMES)
         if 'user_history' in request.session:
             user_history = request.session['user_history'].split(',')
         else:    
@@ -52,6 +62,10 @@ def get_guess(request):
 
 
 def check(request, correct_answer):    
+    if 'user_history' in request.session:
+        user_history = request.session['user_history'].split(',')
+    else:    
+        user_history = []
     result = {}
     check_performed = request.session['check_performed']
     if not check_performed:
@@ -71,4 +85,4 @@ def check(request, correct_answer):
             else:
                 raise Http404("Ошибка! Попробуйте сначала.")
         
-    return render(request, 'psychics/check.html', {'check_performed': check_performed, 'result': result, 'correct_answer': correct_answer})
+    return render(request, 'psychics/check.html', {'check_performed': check_performed, 'result': result, 'correct_answer': correct_answer, 'user_history': user_history})

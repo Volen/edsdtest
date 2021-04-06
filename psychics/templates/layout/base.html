@@ -17,5 +17,14 @@
                 <li>{{ user_number }}</li>
             {% endfor %}
         </ul>
+        <h2>История предположений экстрасенсов:</h2>
+            {% for name, history in psychics_history.items %}
+                <h2>Экстарсенс: {{ name }}</h2>
+                <ul>
+                    {% for psychic_guess in history %}
+                        <li>{{ psychic_guess }}</li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
     </body>
 </html>
