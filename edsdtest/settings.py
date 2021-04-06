@@ -77,8 +77,13 @@ WSGI_APPLICATION = 'edsdtest.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'd9k268iidlsr66',
+        'HOST': 'ec2-3-234-85-177.compute-1.amazonaws.com',
+        'PORT': 5432,
+        'USER': 'zkfbnnravfddau',
+        'PASSWORD': '62079cab6b3cda6a6bf9b955a657012b8d8dd092b6a193503c91f856ef45e29d',
+
     }
 }
 
