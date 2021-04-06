@@ -1,15 +1,7 @@
-{% load static %}
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Тестирование экстрасенсов (Тестовое задание)</title>
-        <link rel="stylesheet" type="text/css" href="{% static 'bboard/style.css' %}">
-    </head>
-    <body>
-        <h1>Резульаты</h1>
-        <p>Гурджиев - {{ request.session.Гурджиев }}</p>
-        <p>Угадайкин - {{ request.session.Угадайкин }}</p>  
-        <a href="{% url 'index' %}">Начать заново</a>
-    </body>
-</html>
+{% extends "layout/base.html" %}
+{% block content %}
+    <h1>Резульаты</h1>
+    <p>Гурджиев - {{ request.session.Гурджиев }}</p>
+    <p>Угадайкин - {{ request.session.Угадайкин }}</p>  
+    <a href="{% url 'index' %}">Начать заново</a>
+{% endblock %}

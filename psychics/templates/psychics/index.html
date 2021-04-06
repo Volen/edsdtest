@@ -1,13 +1,5 @@
-{% load static %}
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Тестирование экстрасенсов (Тестовое задание)</title>
-        <link rel="stylesheet" type="text/css" href="{% static 'bboard/style.css' %}">
-    </head>
-    <body>
-        <h1>Загадайте двузначное число (10-99)</h1>
-        <button><a href="{% url 'get_guess' %}">Число загадано</a></button>
-    </body>
-</html>
+{% extends "layout/base.html" %}
+{% block content %}
+    <h1>Загадайте двузначное число (10-99)</h1>
+    <button><a href="{% url 'get_guess' %}">Число загадано</a></button>
+{% endblock %}
