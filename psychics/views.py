@@ -12,10 +12,11 @@ def get_guess(request):
     if request.method == 'POST':
         form = CorrectAnswerForm(request.POST)
         if form.is_valid():
-            return HttpResponseRedirect('/')
+            print(request)
+            print(request.POST['correct_answer'])
     else:
         first = random.randint(10, 99)
-        first_name = "Гуржиев"   
+        first_name = "Гурджиев"   
         second = random.randint(10, 99)
         second_name = "Угадайкин"
         request.session['first'] = first
