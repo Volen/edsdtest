@@ -1,8 +1,9 @@
 {% extends "layout/base.html" %}
 {% block content %}
     <h1>Догадки экстрасенсов:</h1>
-    <p>{{ request.session.first_name }} - {{ request.session.first }}</p>
-    <p>{{ request.session.second_name }} - {{ request.session.second }}</p>   
+    {% for name, value in guesses.items %}
+        <p>{{ name }} - {{ value }}</p>
+    {% endfor %}
     <form action="" method="post">
         {% csrf_token %}
         {{ form }}

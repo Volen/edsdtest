@@ -36,15 +36,20 @@ def get_guess(request):
             creability_name = name + "_credibility"
             if creability_name not in request.session:
                 request.session[creability_name] = 100
+        
+        guesses = {}
+        
         for name in PSYCHICS_NAMES:
             name_history = name + "_history"
             psychics_guess = random.randint(10, 99)
+            guesses[name] = psychics_guess
             if name_history not in request.session:
                 request.session[name_history] = str(psychics_guess)
             else:
                 request.session[name_history] = request.session[name_history] + ",{}".format(psychics_guess)
         
-        #first = 
+
+        #first = random.randint(10, 99)
         #first_name = "Гурджиев"   
         #second = random.randint(10, 99)
         #second_name = "Угадайкин"
@@ -54,18 +59,18 @@ def get_guess(request):
         #request.session['second_name'] = second_name
         form = CorrectAnswerForm()    
     
-    return render(request, 'psychics/guess.html', {'form': form, 'user_history': user_history})
+    return render(request, 'psychics/guess.html', {'form': form, 'user_history': user_history, 'guesses': guesses})
 
 def check(request, correct_answer):
-    print('Hello', correct_answer)
-    print(request.session['Гурджиев'])
-    if int(request.session['first']) != int(correct_answer):
-        request.session['Гурджиев'] -= 1
-    else:        
-        request.session['Гурджиев'] += 1
-    if int(request.session['second']) != int(correct_answer):
-        request.session['Угадайкин'] -= 1
-    else:        
-        request.session['Угадайкин'] += 1
+    #print('Hello', correct_answer)
+    #print(request.session['Гурджиев'])
+    #if int(request.session['first']) != int(correct_answer):
+    #    request.session['Гурджиев'] -= 1
+    #else:        
+    #    request.session['Гурджиев'] += 1
+    #if int(request.session['second']) != int(correct_answer):
+    #    request.session['Угадайкин'] -= 1
+    #else:        
+    #    request.session['Угадайкин'] += 1
         
     return render(request, 'psychics/check.html')
