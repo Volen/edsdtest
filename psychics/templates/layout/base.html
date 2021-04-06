@@ -18,13 +18,17 @@
             {% endfor %}
         </ul>
         <h2>История предположений экстрасенсов:</h2>
-            {% for name, history in psychics_history.items %}
-                <h2>Экстарсенс: {{ name }}</h2>
-                <ul>
-                    {% for psychic_guess in history %}
-                        <li>{{ psychic_guess }}</li>
-                    {% endfor %}
-                </ul>
-            {% endfor %}
+        {% for name, history in psychics_history.items %}
+            <h2>Экстарсенс: {{ name }}</h2>
+            <ul>
+                {% for psychic_guess in history %}
+                    <li>{{ psychic_guess }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+        <h2>Текущий показатель достоверности.</h2>
+        {% for name, current_credibility in credibility.items %}
+            <p>Экстарсенс: {{ name }} - {{ current_credibility }}</p>
+        {% endfor %}
     </body>
 </html>

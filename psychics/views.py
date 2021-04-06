@@ -18,6 +18,7 @@ class HomePage(View):
             user_history = []
 
         psychics_history = {}
+        credibility = {}
 
         for name in PSYCHICS_NAMES:
             name_history = name + "_history"
@@ -25,8 +26,13 @@ class HomePage(View):
                 psychics_history[name] = request.session[name_history].split(',')
             else:
                 psychics_history[name] = []
+            name_credibility = name + "_credibility"
+            if name_credibility in request.session:
+                credibility[name] = request.session[name_credibility]
+            else:
+                credibility[name] = 100
 
-        return render(request, self.template_name, {'user_history': user_history, 'psychics_history': psychics_history})
+        return render(request, self.template_name, {'user_history': user_history, 'psychics_history': psychics_history, 'credibility': credibility})
 
 
 
@@ -56,6 +62,7 @@ class GetGuess(View):
             user_history = []
 
         psychics_history = {}
+        credibility = {}
 
         for name in PSYCHICS_NAMES:
             name_history = name + "_history"
@@ -63,6 +70,11 @@ class GetGuess(View):
                 psychics_history[name] = request.session[name_history].split(',')
             else:
                 psychics_history[name] = []
+            name_credibility = name + "_credibility"
+            if name_credibility in request.session:
+                credibility[name] = request.session[name_credibility]
+            else:
+                credibility[name] = 100
 
         for name in PSYCHICS_NAMES:
             name_credibility = name + "_credibility"
@@ -82,7 +94,8 @@ class GetGuess(View):
         
         form = self.form_class()    
 
-        return render(request, self.template_name, {'form': form, 'user_history': user_history, 'guesses': guesses, 'psychics_history': psychics_history})
+        return render(request, self.template_name, {'form': form, 'user_history': user_history, 'guesses': guesses, 
+                                                    'psychics_history': psychics_history, 'credibility': credibility})
         
     
 class CheckResult(View):
@@ -95,6 +108,7 @@ class CheckResult(View):
             user_history = []
 
         psychics_history = {}
+        credibility = {}
 
         for name in PSYCHICS_NAMES:
             name_history = name + "_history"
@@ -116,14 +130,16 @@ class CheckResult(View):
                         request.session[credibility_name] += 1
                     else:    
                         request.session[credibility_name] -= 1
-                    credibility = request.session[credibility_name]
-                    result[name] = [is_correct, last_number, credibility]   
+                    current_credibility = request.session[credibility_name]
+                    result[name] = [is_correct, last_number, current_credibility]   
+                    credibility[name] = current_credibility
                     request.session['check_performed'] = True
                 else:
                     raise Http404("Ошибка! Попробуйте сначала.")
             
         return render(request, self.template_name, {'check_performed': check_performed, 'result': result, 'correct_answer': correct_answer, 
-                                                    'user_history': user_history, 'psychics_history': psychics_history})
+                                                    'user_history': user_history, 'psychics_history': psychics_history, 
+                                                    'credibility': credibility})
 
 
 
