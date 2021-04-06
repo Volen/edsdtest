@@ -1,10 +1,10 @@
   
 from django.urls import path
 
-from .views import index, get_guess, check
+from .views import CheckResult, GetGuess, HomePage
 
 urlpatterns = [
-    path('', index, name='index'),
-    path('get_guess', get_guess, name='get_guess'),
-    path('check/<int:correct_answer>', check, name='check'),
+    path('', HomePage.as_view(), name='index'),
+    path('get_guess', GetGuess.as_view(), name='get_guess'),
+    path('check/<int:correct_answer>', CheckResult.as_view(), name='check'),
 ]
