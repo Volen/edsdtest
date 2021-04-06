@@ -8,5 +8,13 @@
     <body>
         {% block content %}
         {% endblock %}
+
+        <hr>
+        <h1>Статистика</h1>
+        <ul>
+            {% for user_number in user_history %}
+                <li>{{ user_number }}</li>
+            {% endfor %}
+        </ul>
     </body>
 </html>
