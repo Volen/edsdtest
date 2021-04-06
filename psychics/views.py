@@ -24,4 +24,4 @@ def get_guess(request):
         request.session['second_name'] = second_name
         form = CorrectAnswerForm()    
     
-    return render(request, 'psychics/guess.html', {'form', form})
+    return render(request, 'psychics/guess.html', {'form': form})
