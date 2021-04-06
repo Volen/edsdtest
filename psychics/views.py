@@ -1,6 +1,6 @@
 import random
 from edsdtest.settings import PSYCHICS_NAMES
-from django.http.response import HttpResponseRedirect
+from django.http.response import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -17,13 +17,12 @@ def get_guess(request):
     if request.method == 'POST':
         form = CorrectAnswerForm(request.POST)
         if form.is_valid():
-            print(request)
-            print(request.POST['correct_answer'])
             correct_answer = request.POST['correct_answer']
             if "user_history" not in request.session:
                 request.session['user_history'] = str(correct_answer)
             else:
                 request.session['user_history'] = request.session['user_history'] + ",{}".format(correct_answer)
+            request.session['check_performed'] = False               
             return HttpResponseRedirect(reverse('check', args=[correct_answer]))
     else:
         print(PSYCHICS_NAMES)
@@ -33,9 +32,9 @@ def get_guess(request):
             user_history = []
 
         for name in PSYCHICS_NAMES:
-            creability_name = name + "_credibility"
-            if creability_name not in request.session:
-                request.session[creability_name] = 100
+            name_credibility = name + "_credibility"
+            if name_credibility not in request.session:
+                request.session[name_credibility] = 100
         
         guesses = {}
         
@@ -47,30 +46,29 @@ def get_guess(request):
                 request.session[name_history] = str(psychics_guess)
             else:
                 request.session[name_history] = request.session[name_history] + ",{}".format(psychics_guess)
-        
-
-        #first = random.randint(10, 99)
-        #first_name = "Гурджиев"   
-        #second = random.randint(10, 99)
-        #second_name = "Угадайкин"
-        #request.session['first'] = first
-        #request.session['first_name'] = first_name    
-        #request.session['second'] = second
-        #request.session['second_name'] = second_name
         form = CorrectAnswerForm()    
     
     return render(request, 'psychics/guess.html', {'form': form, 'user_history': user_history, 'guesses': guesses})
 
-def check(request, correct_answer):
-    #print('Hello', correct_answer)
-    #print(request.session['Гурджиев'])
-    #if int(request.session['first']) != int(correct_answer):
-    #    request.session['Гурджиев'] -= 1
-    #else:        
-    #    request.session['Гурджиев'] += 1
-    #if int(request.session['second']) != int(correct_answer):
-    #    request.session['Угадайкин'] -= 1
-    #else:        
-    #    request.session['Угадайкин'] += 1
+
+def check(request, correct_answer):    
+    result = {}
+    check_performed = request.session['check_performed']
+    if not check_performed:
+        for name in PSYCHICS_NAMES:            
+            name_history = name + "_history"
+            credibility_name = name + "_credibility"
+            if name_history in request.session:
+                last_number = int(request.session[name_history].split(',')[-1])
+                is_correct = last_number == correct_answer
+                if is_correct:
+                    request.session[credibility_name] += 1
+                else:    
+                    request.session[credibility_name] -= 1
+                credibility = request.session[credibility_name]
+                result[name] = [is_correct, last_number, credibility]   
+                request.session['check_performed'] = True
+            else:
+                raise Http404("Ошибка! Попробуйте сначала.")
         
-    return render(request, 'psychics/check.html')
+    return render(request, 'psychics/check.html', {'check_performed': check_performed, 'result': result, 'correct_answer': correct_answer})

@@ -1,7 +1,12 @@
 {% extends "layout/base.html" %}
 {% block content %}
-    <h1>Резульаты</h1>
-    <p>Гурджиев - {{ request.session.Гурджиев }}</p>
-    <p>Угадайкин - {{ request.session.Угадайкин }}</p>  
+    <h1>Резульаты:</h1>
+    {% if not check_performed %}
+        {% for name, data in result.items %}
+            <p>Экстарсенс: {{ name }} - Предположил: {{ data.1}} - {% if data.0 %}"Угадал"{% else %}"Не угадал"{% endif %}. Новая достоверность: {{ data.2 }}</p>
+        {% endfor %}
+    {% else %}
+        <h1>По этому запросу проверка уже проводилась. Пожалуйста не обновляйте страницу, а попробуйте снова</h1>    
+    {% endif %}
     <a href="{% url 'index' %}">Начать заново</a>
 {% endblock %}
