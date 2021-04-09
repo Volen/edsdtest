@@ -88,9 +88,9 @@ class HistoryDB:
         else:
             return False
 
-    def get_final_result(self, psichics_names, correct_answer):
+    def get_final_result(self, psychics_names, correct_answer):
         result = {}
-        for name in psichics_names:            
+        for name in psychics_names:            
             name_history = name + "_history"
             credibility_name = name + "_credibility"
             if name_history in self.request.session:
@@ -108,3 +108,11 @@ class HistoryDB:
                 raise Http404("Ошибка! Попробуйте сначала.")
         return result        
 
+    def get_final_result_with_check(self, psychics_names, correct_answer):
+        check_performed = self.get_check_perfromed()        
+        if not check_performed:
+            result = self.get_final_result(psychics_names, correct_answer)
+            self.set_check_performed(True)
+        else:
+            result = {}
+        return result    

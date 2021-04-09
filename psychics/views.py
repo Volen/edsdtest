@@ -1,4 +1,3 @@
-import random
 from django.http.response import HttpResponseRedirect
 from django.views import View
 from django.shortcuts import render
@@ -26,10 +25,10 @@ class GetGuess(View):
     form_class = CorrectAnswerForm
     template_name = 'psychics/guess.html'
 
-
     def post(self, request):
         form = self.form_class(request.POST)
         history_db = HistoryDB(request)
+        
         if form.is_valid():
             correct_answer = request.POST['correct_answer']            
             history_db.add_correct_answer(correct_answer)
@@ -63,18 +62,11 @@ class CheckResult(View):
     template_name = 'psychics/check.html'
 
     def get(self, request, correct_answer):
-
         history_db = HistoryDB(request)
         user_history = history_db.get_user_history()
         psychics_history = history_db.get_psychics_history(PSYCHICS_NAMES)
         check_performed = history_db.get_check_perfromed()
-        
-        if not check_performed:
-            result = history_db.get_final_result(PSYCHICS_NAMES, correct_answer)
-            history_db.set_check_performed(True)
-        else:
-            result = {}
-
+        result = history_db.get_final_result_with_check(PSYCHICS_NAMES, correct_answer)
         credibility = history_db.get_psychics_credibility(PSYCHICS_NAMES)
 
         return render(request, self.template_name, {'check_performed': check_performed, 'result': result, 'correct_answer': correct_answer, 
