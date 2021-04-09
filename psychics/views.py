@@ -1,6 +1,5 @@
 import random
 from django.http.response import Http404, HttpResponseRedirect
-from django.urls.base import get_urlconf
 from django.views import View
 from django.shortcuts import render
 from django.urls import reverse
@@ -69,28 +68,16 @@ class CheckResult(View):
         history_db = HistoryDB(request)
         user_history = history_db.get_user_history()
         psychics_history = history_db.get_psychics_history(PSYCHICS_NAMES)
-        credibility = {}
 
-        result = {}
         check_performed = request.session['check_performed']
         if not check_performed:
-            for name in PSYCHICS_NAMES:            
-                name_history = name + "_history"
-                credibility_name = name + "_credibility"
-                if name_history in request.session:
-                    last_number = request.session[name_history][-1]
-                    is_correct = last_number == correct_answer
-                    if is_correct:
-                        request.session[credibility_name] += 1
-                    else:    
-                        request.session[credibility_name] -= 1
-                    current_credibility = request.session[credibility_name]
-                    result[name] = [is_correct, last_number, current_credibility]   
-                    credibility[name] = current_credibility                    
-                else:
-                    raise Http404("Ошибка! Попробуйте сначала.")
+            result = history_db.get_final_result(PSYCHICS_NAMES, correct_answer)
             request.session['check_performed'] = True        
-            
+        else:
+            result = {}
+
+        credibility = history_db.get_psychics_credibility(PSYCHICS_NAMES)
+
         return render(request, self.template_name, {'check_performed': check_performed, 'result': result, 'correct_answer': correct_answer, 
                                                     'user_history': user_history, 'psychics_history': psychics_history, 
                                                     'credibility': credibility})

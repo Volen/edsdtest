@@ -1,5 +1,6 @@
 import random
 from django.db import models
+from django.http.response import Http404
 
 
 class Psychic:
@@ -9,6 +10,7 @@ class Psychic:
 
     def guess_function(self):
         return random.randint(10, 99)
+
 
 class PsychicsPool:
     def __init__(self, names):
@@ -20,6 +22,7 @@ class PsychicsPool:
             psychic = Psychic(name)
             guesses[psychic.name] = psychic.guess_function()
         return guesses    
+
 
 class HistoryDB:
     def __init__(self, request):
@@ -76,3 +79,23 @@ class HistoryDB:
             else:
                 self.request.session[name_history] = [psychic_guess]
 
+
+    def get_final_result(self, psichics_names, correct_answer):
+        result = {}
+        for name in psichics_names:            
+            name_history = name + "_history"
+            credibility_name = name + "_credibility"
+            if name_history in self.request.session:
+                last_number = self.request.session[name_history][-1]
+                is_correct = last_number == correct_answer
+                if not credibility_name in self.request.session:
+                    self.request.session[credibility_name] = 100
+                if is_correct:
+                    self.request.session[credibility_name] += 1
+                else:    
+                    self.request.session[credibility_name] -= 1
+                current_credibility = self.request.session[credibility_name]
+                result[name] = [is_correct, last_number, current_credibility]   
+            else:
+                raise Http404("Ошибка! Попробуйте сначала.")
+        return result        
