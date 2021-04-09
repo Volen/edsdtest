@@ -86,10 +86,10 @@ class CheckResult(View):
                         request.session[credibility_name] -= 1
                     current_credibility = request.session[credibility_name]
                     result[name] = [is_correct, last_number, current_credibility]   
-                    credibility[name] = current_credibility
-                    request.session['check_performed'] = True
+                    credibility[name] = current_credibility                    
                 else:
                     raise Http404("Ошибка! Попробуйте сначала.")
+            request.session['check_performed'] = True        
             
         return render(request, self.template_name, {'check_performed': check_performed, 'result': result, 'correct_answer': correct_answer, 
                                                     'user_history': user_history, 'psychics_history': psychics_history, 
