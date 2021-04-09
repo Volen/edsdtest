@@ -1,98 +1,61 @@
 import random
 from django.http.response import Http404, HttpResponseRedirect
+from django.urls.base import get_urlconf
 from django.views import View
 from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import CorrectAnswerForm
+from .models import HistoryDB, PsychicsPool
 from edsdtest.settings import PSYCHICS_NAMES
 
 
 class HomePage(View):
     template_name = 'psychics/index.html'
 
-    def get(self, request, *args, **kwargs):
-        if 'user_history' in request.session:
-            user_history = request.session['user_history'].split(',')
-        else:    
-            user_history = []
+    def get(self, request):
 
-        psychics_history = {}
-        credibility = {}
+        history_db = HistoryDB(request)
+        user_history = history_db.get_user_history()
+        psychics_history = history_db.get_psychics_history(PSYCHICS_NAMES)
+        credibility = history_db.get_psychics_credibility(PSYCHICS_NAMES)
 
-        for name in PSYCHICS_NAMES:
-            name_history = name + "_history"
-            if name_history in request.session:
-                psychics_history[name] = request.session[name_history].split(',')
-            else:
-                psychics_history[name] = []
-            name_credibility = name + "_credibility"
-            if name_credibility in request.session:
-                credibility[name] = request.session[name_credibility]
-            else:
-                credibility[name] = 100
-
-        return render(request, self.template_name, {'user_history': user_history, 'psychics_history': psychics_history, 'credibility': credibility})
-
-
+        return render(request, self.template_name, {'user_history': user_history, 'psychics_history': psychics_history, 
+                                                    'credibility': credibility})
 
 class GetGuess(View):
     form_class = CorrectAnswerForm
     template_name = 'psychics/guess.html'
 
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = self.form_class(request.POST)
+        history_db = HistoryDB(request)
         if form.is_valid():
-            correct_answer = request.POST['correct_answer']
-            if "user_history" not in request.session:
-                request.session['user_history'] = str(correct_answer)
-            else:
-                request.session['user_history'] = request.session['user_history'] + ",{}".format(correct_answer)
-            request.session['check_performed'] = False               
+            correct_answer = request.POST['correct_answer']            
+            history_db.add_correct_answer(correct_answer)
+            request.session['check_performed'] = False
             return HttpResponseRedirect(reverse('check', args=[correct_answer]))
         else:
-            return render(request, self.template_name, {'form': form})
+            user_history = history_db.get_user_history()
+            psychics_history = history_db.get_psychics_history(PSYCHICS_NAMES)
+            credibility = history_db.get_psychics_credibility(PSYCHICS_NAMES)
+            guesses = history_db.get_psychics_guesses_cache()
 
+            return render(request, self.template_name, {'form': form, 'user_history': user_history, 'guesses': guesses, 
+                                                        'psychics_history': psychics_history, 'credibility': credibility})
 
-    def get(self, request, *args, **kwargs):
-        if 'user_history' in request.session:
-            user_history = request.session['user_history'].split(',')
-        else:    
-            user_history = []
+    def get(self, request):
 
-        psychics_history = {}
-        credibility = {}
-
-        for name in PSYCHICS_NAMES:
-            name_history = name + "_history"
-            if name_history in request.session:
-                psychics_history[name] = request.session[name_history].split(',')
-            else:
-                psychics_history[name] = []
-            name_credibility = name + "_credibility"
-            if name_credibility in request.session:
-                credibility[name] = request.session[name_credibility]
-            else:
-                credibility[name] = 100
-
-        for name in PSYCHICS_NAMES:
-            name_credibility = name + "_credibility"
-            if name_credibility not in request.session:
-                request.session[name_credibility] = 100
+        history_db = HistoryDB(request)
+        user_history = history_db.get_user_history()
+        psychics_history = history_db.get_psychics_history(PSYCHICS_NAMES)
+        credibility = history_db.get_psychics_credibility(PSYCHICS_NAMES)
         
-        guesses = {}
-        
-        for name in PSYCHICS_NAMES:
-            name_history = name + "_history"
-            psychics_guess = random.randint(10, 99)
-            guesses[name] = psychics_guess
-            if name_history not in request.session:
-                request.session[name_history] = str(psychics_guess)
-            else:
-                request.session[name_history] = request.session[name_history] + ",{}".format(psychics_guess)
-        
-        form = self.form_class()    
+        psychics_pool = PsychicsPool(PSYCHICS_NAMES)
+        guesses = psychics_pool.generate_guesses()        
+        history_db.save_psychics_guesses_cache(guesses)
+        form = self.form_class()
 
         return render(request, self.template_name, {'form': form, 'user_history': user_history, 'guesses': guesses, 
                                                     'psychics_history': psychics_history, 'credibility': credibility})
@@ -101,21 +64,12 @@ class GetGuess(View):
 class CheckResult(View):
     template_name = 'psychics/check.html'
 
-    def get(self, request, correct_answer, *args, **kwargs):
-        if 'user_history' in request.session:
-            user_history = request.session['user_history'].split(',')
-        else:    
-            user_history = []
+    def get(self, request, correct_answer):
 
-        psychics_history = {}
+        history_db = HistoryDB(request)
+        user_history = history_db.get_user_history()
+        psychics_history = history_db.get_psychics_history(PSYCHICS_NAMES)
         credibility = {}
-
-        for name in PSYCHICS_NAMES:
-            name_history = name + "_history"
-            if name_history in request.session:
-                psychics_history[name] = request.session[name_history].split(',')
-            else:
-                psychics_history[name] = []
 
         result = {}
         check_performed = request.session['check_performed']
@@ -124,7 +78,7 @@ class CheckResult(View):
                 name_history = name + "_history"
                 credibility_name = name + "_credibility"
                 if name_history in request.session:
-                    last_number = int(request.session[name_history].split(',')[-1])
+                    last_number = request.session[name_history][-1]
                     is_correct = last_number == correct_answer
                     if is_correct:
                         request.session[credibility_name] += 1
