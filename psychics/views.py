@@ -1,5 +1,5 @@
 import random
-from django.http.response import Http404, HttpResponseRedirect
+from django.http.response import HttpResponseRedirect
 from django.views import View
 from django.shortcuts import render
 from django.urls import reverse
@@ -33,7 +33,7 @@ class GetGuess(View):
         if form.is_valid():
             correct_answer = request.POST['correct_answer']            
             history_db.add_correct_answer(correct_answer)
-            request.session['check_performed'] = False
+            history_db.set_check_performed(False)
             return HttpResponseRedirect(reverse('check', args=[correct_answer]))
         else:
             user_history = history_db.get_user_history()
@@ -45,7 +45,6 @@ class GetGuess(View):
                                                         'psychics_history': psychics_history, 'credibility': credibility})
 
     def get(self, request):
-
         history_db = HistoryDB(request)
         user_history = history_db.get_user_history()
         psychics_history = history_db.get_psychics_history(PSYCHICS_NAMES)
@@ -68,11 +67,11 @@ class CheckResult(View):
         history_db = HistoryDB(request)
         user_history = history_db.get_user_history()
         psychics_history = history_db.get_psychics_history(PSYCHICS_NAMES)
-
-        check_performed = request.session['check_performed']
+        check_performed = history_db.get_check_perfromed()
+        
         if not check_performed:
             result = history_db.get_final_result(PSYCHICS_NAMES, correct_answer)
-            request.session['check_performed'] = True        
+            history_db.set_check_performed(True)
         else:
             result = {}
 

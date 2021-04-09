@@ -79,6 +79,14 @@ class HistoryDB:
             else:
                 self.request.session[name_history] = [psychic_guess]
 
+    def set_check_performed(self, value):
+        self.request.session['check_performed'] = value
+
+    def get_check_perfromed(self):
+        if 'check_performed' in self.request.session:
+            return self.request.session['check_performed']         
+        else:
+            return False
 
     def get_final_result(self, psichics_names, correct_answer):
         result = {}
@@ -99,3 +107,4 @@ class HistoryDB:
             else:
                 raise Http404("Ошибка! Попробуйте сначала.")
         return result        
+
